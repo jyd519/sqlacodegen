@@ -7,6 +7,7 @@ setup(
     },
     setup_requires=[
         'setuptools >= 36.2.7',
-        'setuptools_scm >= 1.7.0'
+        'setuptools_scm >= 1.7.0',
+        'wordninja >= 0.1.3'
     ]
 )

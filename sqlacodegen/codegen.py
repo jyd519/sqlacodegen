@@ -7,6 +7,7 @@ import sys
 from collections import defaultdict
 from inspect import ArgSpec
 from keyword import iskeyword
+import wordninja
 
 import sqlalchemy
 from sqlalchemy import (
@@ -206,6 +207,7 @@ class ModelClass(Model):
         if tempname.startswith("F"):
             tempname = tempname[1:]
         tempname = tempname.lower()
+        tempname = '_'.join(wordninja.split(tempname))
         if tempname == 'import':
             tempname = 'is_import'
 
