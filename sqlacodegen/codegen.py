@@ -182,6 +182,8 @@ class ModelClass(Model):
     @classmethod
     def _tablename_to_classname(cls, tablename, inflect_engine):
         tablename = cls._convert_to_valid_identifier(tablename)
+        if tablename.startswith("t"):
+            tablename = tablename[1:]
         camel_case_name = ''.join(part[:1].upper() + part[1:] for part in tablename.split('_'))
         return inflect_engine.singular_noun(camel_case_name) or camel_case_name
 
@@ -201,6 +203,11 @@ class ModelClass(Model):
         while tempname in self.attributes:
             tempname = attrname + str(counter)
             counter += 1
+        if tempname.startswith("F"):
+            tempname = tempname[1:]
+        tempname = tempname.lower()
+        if tempname == 'import':
+            tempname = 'is_import'
 
         self.attributes[tempname] = value
         return tempname
@@ -244,7 +251,7 @@ class ManyToOneRelationship(Relationship):
         # Handle self referential relationships
         if source_cls == target_cls:
             self.preferred_name = 'parent' if not colname.endswith('_id') else colname[:-3]
-            pk_col_names = [col.name for col in constraint.table.primary_key]
+            pk_col_names = [col.name[1:].lower() if col.name.startswith('F') else col.name for col in constraint.table.primary_key]
             self.kwargs['remote_side'] = '[{0}]'.format(', '.join(pk_col_names))
 
         # If the two tables share more than one foreign key constraint,
@@ -459,6 +466,8 @@ class CodeGenerator(object):
             for attr in argspec.args[1:]:
                 # Remove annoyances like _warn_on_bytestring
                 if attr.startswith('_'):
+                    continue
+                if attr == 'display_width':
                     continue
 
                 value = getattr(coltype, attr, missing)
